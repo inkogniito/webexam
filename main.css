@@ -1,0 +1,11 @@
+nav {
+    background-color: rgb(165, 87, 42);
+}
+
+nav .container img {
+    height: 50px;
+}
+
+footer {
+    background-color: rgb(240, 161, 124);
+}
