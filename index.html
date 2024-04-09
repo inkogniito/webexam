@@ -12,7 +12,7 @@
 </head>
 
 <body>
-    <nav class="navbar">
+    <nav class="navbar" id="mainnav">
         <div class="container">
             <div class="navbar-brand">
                 <a href="#" class="text-decoration-none text-white">
@@ -27,37 +27,74 @@
         </div>
     </nav>
 
-    <footer class="p-3">
+    <div id="notifications">
+        <div class="container"></div>
+    </div>
+
+    <header class="p-3 text-white" id="mainheader">
+        <div class="text-center mt-sm-2 mt-md-0">
+            <h5>Незабываемые эмоции от прогулок по Москве!</h5>
+            <p class="mb-0">
+                Для участия в экскурсии требуется предварительная запись.
+                Проект «Экскурсии Москвы» предоставляет возможность посещать экскурсии в сопровождении
+                опытных гидов,
+                чаевые приветствуются.
+            </p>
+        </div>
+    </header>
+
+    <main class="p-3 bg-light">
         <div class="container">
+            <h2 class="text-center mb-5">Достопримечательности Москвы</h2>
             <div class="row text-center">
-                <div class="col-md-6">
-                    <h2>Связаться с нами</h2>
-                    <form>
-                        <div class="mb-3">
-                            <input type="text" class="form-control" id="yourName" placeholder="Введите ваше имя">
-                        </div>
-                        <div class="mb-3">
-                            <input type="email" class="form-control" id="yourEmail" placeholder="Введите ваш email">
-                        </div>
-                        <div class="mb-3">
-                            <textarea class="form-control" id="yourMessage" rows="4"
-                                placeholder="Введите ваше сообщение"></textarea>
-                        </div>
-                        <button type="submit" class="btn btn-primary">Отправить</button>
-                    </form>
+                <div class="col-md-3 mb-3">
+                    <img src="img/redsquare.jpg" class="mb-2" />
+                    <p class="text-center">Красная площадь</p>
                 </div>
-                <div class="col-md-6">
-                    <div class="mt-4">
-                        <h3>Контактная информация:</h3>
-                        <p>Email: <a class="link-secondary" href="mailto:email@gmail.com">email@gmail.com</a></p>
-                        <p>Телефон: +12345678910</p>
-                        <p>Следите за нами в нашем <a href="#" class="text-decoration-none"><i
-                                    class="fa-brands fa-telegram"></i>Telegram</a>!</p>
-                    </div>
+                <div class="col-md-3 mb-3">
+                    <img src="img/sobor.jpg" class="mb-2" />
+                    <p class="text-center">Собор Василия Блаженного</p>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <img src="img/teatr.jpeg" class="mb-2" />
+                    <p class="text-center">Большой Театр</p>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <img src="img/vdnh.jpg" class="mb-2" />
+                    <p class="text-center">ВДНХ</p>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <img src="img/park.jpg" class="mb-2" />
+                    <p class="text-center">Парк Горького</p>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <img src="img/tower.jpg" class="mb-2" />
+                    <p class="text-center">Останкинская телебашня</p>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <img src="img/mgu.jpg" class="mb-2" />
+                    <p class="text-center">Главное здание МГУ</p>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <img src="img/mcity.jpg" class="mb-2" />
+                    <p class="text-center">Москва-Сити</p>
                 </div>
             </div>
         </div>
+    </main>
+
+    <footer class="p-3" id="mainconacts">
+        <div class="container">
+            <div class="col-md-6 mt-4">
+                <h3>Контактная информация:</h3>
+                <p>Email: <a class="link-secondary" href="mailto:email@gmail.com">email@gmail.com</a></p>
+                <p>Телефон: +12345678910</p>
+                <p>Следите за нами в <a href="#" class="text-decoration-none">Telegram <i
+                            class="fa-brands fa-telegram"></i></a>!</p>
+            </div>
+        </div>
     </footer>
+
     <!--fontawesome-->
     <script src="https://kit.fontawesome.com/f776a0344b.js" crossorigin="anonymous"></script>
     <!--бустрап js-->
