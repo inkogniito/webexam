@@ -7,6 +7,10 @@ let currentPage = 1;
 let itemsPerPage = 5;
 const pagesToShow = 7;
 let selrouteID = -1;
+let selrouteName = '';
+let selgidprice;
+let selgidid;
+let selgidname;
 
 //МАРШРУТЫ
 //загрузка маршрутов с сервера
@@ -33,17 +37,20 @@ function displayRoutes() {
     const displayedRoutes = filtredroutes.slice(startIndex, endIndex);
 
     displayedRoutes.forEach(route => {
-        const row = `
-            <tr class="route-row"> 
-                <td class="text-center">
-                    <h5>${route.name}</h5>
-                    <button class="btn btn-primary btn-route-sel" data-routeid="${route.id}" data-routename="${route.name}">Записаться</button>
-                </td>
-                <td>${route.description}</td>
-                <td>${route.mainObject}</td>
-            </tr>
+        const row = document.createElement('tr');
+        row.classList.add('route-row');
+        row.innerHTML = `
+            <td class="text-center">
+                <h5>${route.name}</h5>
+                <button class="btn btn-primary btn-route-sel" data-routeid="${route.id}" data-routename="${route.name}">Записаться</button>
+            </td>
+            <td>${route.description}</td>
+            <td>${route.mainObject}</td>
         `;
-        routesTableBody.innerHTML += row;
+        routesTableBody.appendChild(row);
+        if (row.querySelector('[data-routeid]').dataset.routeid === selrouteID) {
+            row.classList.add('table-success');
+        }
     });
 }
 
@@ -66,6 +73,7 @@ function selectRoute() {
             // Добавляем класс 'selected-route' к строке, содержащей нажатую кнопку
             routeRow.classList.add('table-success');
             selrouteID = button.dataset.routeid;
+            selrouteName = button.dataset.routename;
             loadAndDisplayGids();
         });
     });
@@ -190,7 +198,7 @@ function displayGids() {
         const row = `
             <tr>
                 <td class = 'd-flex align-items-center justify-content-around'>
-                    <button class="btn btn-primary btn-gid-sel" data-guid-id="${gid.id}" data-guid-name="${gid.name}" data-guid-price="${gid.pricePerHour}" 
+                    <button class="btn btn-primary btn-gid-sel" data-gidid="${gid.id}" data-gidname="${gid.name}" data-gidprice="${gid.pricePerHour}" 
                     data-bs-toggle="modal" data-bs-target="#reservationModal">Выбрать</button>
                 </td>
                 <td>${gid.name}</td>
@@ -205,7 +213,11 @@ function displayGids() {
 
     document.querySelectorAll('.btn-gid-sel').forEach(btn => {
         btn.onclick = () => {
-
+            selgidid = btn.dataset.gidid;
+            selgidname = btn.dataset.gidname;
+            selgidprice = btn.dataset.gidprice;
+            document.querySelector('#modalGuidInfo #guideName').innerHTML = selgidname;
+            document.querySelector('#modalRouteInfo #routeName').innerHTML = selrouteName;
         };
     });
 }
@@ -263,6 +275,151 @@ document.getElementById('gidsFiltrBtn').onclick = filterGids;
 
 //ЗАЯВКА
 
+document.getElementById('modal-submit').onclick = event => {
+    const errorMessage = validateRequest()
+    if (errorMessage.length !== 0) {
+        showAlert(errorMessage, 'alert-danger');
+    } else {
+        createExcursion();
+        showAlert('Вы записались на эксукрсию!', 'alert-success');
+    }
+}
+
+async function createExcursion() {
+    const createExcursionUrl = `http://exam-2023-1-api.std-900.ist.mospolytech.ru/api/orders?api_key=${api_key}`;
+    const optionFirst = document.getElementById('option1').checked ? 1 : 0;
+    const optionSecond = document.getElementById('option2').checked ? 1 : 0;
+
+    const formData = new FormData();
+
+    formData.append("guide_id", selgidid);
+    formData.append("route_id", selrouteID);
+    formData.append("date", document.getElementById('excursionDate').value);
+    formData.append("time", document.getElementById('excursionStartTime').value);
+    formData.append("duration", document.getElementById('duration').value);
+    formData.append("persons", document.getElementById('peopleCount').value);
+    formData.append("price", calculatePrice().toString());
+    formData.append("optionFirst", optionFirst.toString());
+    formData.append("optionSecond", optionSecond.toString());
+
+    fetch(createExcursionUrl, {
+        method: 'POST',
+        body: formData,
+    })
+        .then(response => response.json())
+        .then(data => {
+            console.log(data);
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+}
+
+const validateRequest = () => {
+    let errors = [validateDate(), validateTime(), validatePersonsCount()];
+    let errorMessage = errors.filter(error => error.length !== 0).join('<br>');
+    return errorMessage;
+}
+
+const validateDate = () => {
+    const date = new Date(document.getElementById('excursionDate').value);
+    if (isNaN(date) || date < new Date()) {
+        return isNaN(date) ? "Дата экскурсии должна быть заполнена" : "Дата экскурсии не может быть ранее или равна текущей дате";
+    }
+    return '';
+}
+
+const validateTime = () => {
+    const time = document.getElementById('excursionStartTime').value.trim();
+    const timeRegex = /^(?:[01]\d|2[0-3]):[0-5]\d$/;
+    if (!timeRegex.test(time)) return 'Время должно соответствовать шаблону HH:MM';
+    const [hours, minutes] = time.split(':').map(Number);
+    if (!(hours >= 9 && hours < 23 && minutes >= 0 && minutes < 60)) return 'Время должно соответствовать диапазону 9-23 часов';
+    return '';
+}
+
+const validatePersonsCount = () => {
+    let personsCount = document.getElementById('peopleCount').value.trim();
+    if (personsCount === '' || isNaN(personsCount)) return "Количество людей должно быть заполнено и быть числом";
+    if (!(personsCount > 0 && personsCount < 21)) return "Размер экскурсионной группы может составлять от 1 до 20 человек";
+    return '';
+}
+
+
+const calculatePrice = () => {
+    const date = new Date(document.getElementById('excursionDate').value);
+    const time = document.getElementById('excursionStartTime').value.trim();
+    const personsCount = document.getElementById('peopleCount').value.trim();
+    const duration = parseInt(document.getElementById('duration').value)
+    const option1 = document.getElementById('option1').checked;
+    const option2 = document.getElementById('option2').checked;
+    let isThisDayOff;
+    let hour;
+    
+    // Проверка даты экскурсии
+    const isDateValid = validateDate() === '';
+    // Проверка времени экскурсии
+    const isTimeValid = validateTime() === '';
+    // Определение переменной isThisDayOff
+    if (isDateValid) {
+        if (date.getDay() === 0 || date.getDay() === 6) {
+            isThisDayOff = 1.5;
+        } else {
+            isThisDayOff = 1;
+        }
+    } else {
+        isThisDayOff = 1;
+    }
+
+    // Если время экскурсии прошло проверку, извлекаем час из времени
+    if (isTimeValid) {
+        hour = time.split(':').map(Number)[0];
+    } else {
+        // Если время не прошло проверку, устанавливаем час на 15
+        hour = 15;
+    }
+
+    // Определение стоимости в зависимости от времени суток
+    const isItMorning = hour < 12 ? 400 : 0;
+    const isItEvening = hour >= 20 ? 1000 : 0;
+
+    let numberOfVisitor;
+    // Проверка количества посетителей
+    if (validatePersonsCount() === '') {
+        // Если количество посетителей прошло проверку
+        if (personsCount < 5) {
+            numberOfVisitor = 0;
+        } else if (personsCount <= 10) {
+            numberOfVisitor = 1000;
+        } else {
+            numberOfVisitor = 1500;
+        }
+    } else {
+        // Если количество посетителей не прошло проверку
+        numberOfVisitor = 1;
+    }
+
+    let totalPrice = selgidprice * duration * isThisDayOff + isItMorning + isItEvening + numberOfVisitor;
+    if (option1) totalPrice *= 0.85;
+    const checkb = document.getElementById('option2');
+    if (personsCount > 10) {
+        checkb.disabled = true;
+    } else {
+        checkb.disabled = false;
+        if (option2 && personsCount >=5 ) { totalPrice *= 1.25; }
+        if (option2 && personsCount <5 && personsCount >=1 ) {totalPrice *= 1.15};
+    }
+    return Math.round(totalPrice);
+}
+
+const modalInputIds = ['duration', 'excursionDate', 'excursionStartTime', 'peopleCount', 'option1', 'option2'];
+modalInputIds.forEach(id => {
+    document.getElementById(id).onchange = () => {
+        document.getElementById('totalCost').innerHTML = calculatePrice().toString();
+    }
+})
+document.getElementById('excursionStartTime').onblur = calculatePrice;
+
 //уведомления - предупреждения
 const showAlert = (message, alertType) => {
     const alertCon = document.createElement('div');
@@ -270,6 +427,9 @@ const showAlert = (message, alertType) => {
     alertCon.innerHTML = `${message} <button type="button" class="btn-close" data-bs-dismiss="alert"></button>`;
 
     document.querySelector('#notifications .container').appendChild(alertCon);
+    const element = document.getElementById('notifications');
+    element.scrollIntoView({ behavior: 'smooth' });
+
     setTimeout(() => alertCon.remove(), 4000);
 }
 
