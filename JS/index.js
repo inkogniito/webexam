@@ -199,7 +199,7 @@ function displayGids() {
             <tr>
                 <td class = 'd-flex align-items-center justify-content-around'>
                     <button class="btn btn-primary btn-gid-sel" data-gidid="${gid.id}" data-gidname="${gid.name}" data-gidprice="${gid.pricePerHour}" 
-                    data-bs-toggle="modal" data-bs-target="#reservationModal">Выбрать</button>
+                    data-bs-toggle="modal" data-bs-target="#orderModal">Выбрать</button>
                 </td>
                 <td>${gid.name}</td>
                 <td>${gid.language}</td>
@@ -280,13 +280,13 @@ document.getElementById('modal-submit').onclick = event => {
     if (errorMessage.length !== 0) {
         showAlert(errorMessage, 'alert-danger');
     } else {
-        createExcursion();
+        createOrder();
         showAlert('Вы записались на эксукрсию!', 'alert-success');
     }
 }
 
-async function createExcursion() {
-    const createExcursionUrl = `http://exam-2023-1-api.std-900.ist.mospolytech.ru/api/orders?api_key=${api_key}`;
+async function createOrder() {
+    const createOrderUrl = `http://exam-2023-1-api.std-900.ist.mospolytech.ru/api/orders?api_key=${api_key}`;
     const optionFirst = document.getElementById('option1').checked ? 1 : 0;
     const optionSecond = document.getElementById('option2').checked ? 1 : 0;
 
@@ -302,7 +302,7 @@ async function createExcursion() {
     formData.append("optionFirst", optionFirst.toString());
     formData.append("optionSecond", optionSecond.toString());
 
-    fetch(createExcursionUrl, {
+    fetch(createOrderUrl, {
         method: 'POST',
         body: formData,
     })
